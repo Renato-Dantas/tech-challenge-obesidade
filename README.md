@@ -1,6 +1,8 @@
 # Tech Challenge — Obesidade
 
-Aplicação Streamlit de apoio à decisão clínica que treina um modelo de classificação de obesidade a partir de `Obesity.csv` e exibe probabilidades por classe, recomendações clínicas e alertas orientados por dados exploratórios.
+Aplicação de apoio à decisão clínica, utilizando um modelo de classificação de obesidade a partir de dados históricos, exibe probabilidades por classe, recomendações clínicas e alertas orientados por dados exploratórios.
+
+Você pode acessar a aplicação neste [LINK](https://techchallengeobesidadefiap.streamlit.app/)
 
 ## Dependências
 - Python 3.10+ recomendado
