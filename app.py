@@ -13,7 +13,7 @@ st.markdown("""
         cursor: pointer !important;
     }
     
-    /* Estilo do botão principal (SEU DESIGN VERDE) */
+    /* Estilo do botão principal     */
     .stButton button {
         background-color: rgba(61, 213, 109, 0.7);
         color: #fff;
@@ -26,11 +26,15 @@ st.markdown("""
         background-color: rgb(61, 157, 243);
     }
             
+    .st-emotion-cache-lpgk4i:hover{
+        color: white!important;
+    }       
+            
     .stElementContainer.element-container.st-emotion-cache-zh2fnc.ek2vi381{
         width: 100% !important;     
     }
 
-    /* Container das barras de probabilidade (Fundo Escuro Sofisticado) */
+    /* Container das barras de probabilidade  */
     .bar-chart-container {
         display: flex;
         align-items: flex-end; /* Alinha as barras na base */
@@ -77,7 +81,6 @@ st.markdown("""
         font-family: sans-serif;
     }
 
-    /* --- NOVO: Estilo do Box de Recomendação --- */
     .recommendation-box {
         background-color: #f0f2f6;
         border-left: 5px solid rgba(61, 213, 109, 1); /* Verde combinando com botão */
@@ -141,6 +144,131 @@ def get_recommendations(classe_pt):
             "Recomendações da OMS para Atividade Física",
             "https://www.who.int/news-room/fact-sheets/detail/physical-activity"
         )
+
+def build_clinical_insights(user_data, pred_label):
+    """Gera alertas praticos com base no perfil informado e no nivel previsto."""
+    severity = {
+        'Insufficient_Weight': 0,
+        'Normal_Weight': 1,
+        'Overweight_Level_I': 2,
+        'Overweight_Level_II': 3,
+        'Obesity_Type_I': 4,
+        'Obesity_Type_II': 5,
+        'Obesity_Type_III': 6,
+    }.get(pred_label, 0)
+
+    insights = []  # cada item: {"title": str, "lines": [str, ...]}
+    gender = user_data.get('Gender')
+    age = user_data.get('Age')
+
+    if user_data.get('family_history') == 'yes' and severity >= 4:
+        insights.append({
+            "title": "Historico familiar",
+            "lines": [
+                "Pacientes em graus II e III costumam ter historico de obesidade na familia; inclua a triagem familiar no plano de ação.",
+                "Considere intervenções que envolvam rotina alimentar e atividade fisica do nucleo familiar."
+            ]
+        })
+    elif user_data.get('family_history') == 'yes':
+        insights.append({
+            "title": "Historico familiar",
+            "lines": [
+                "Familia com obesidade aumenta a chance de progressão; acompanhe com revisões periodicas.",
+                "Oriente a familia sobre sinais precoces e metas conjuntas."
+            ]
+        })
+
+    if user_data.get('SCC') == 'no':
+        insights.append({
+            "title": "Monitoração calórica",
+            "lines": [
+                "O registro alimentar costuma ser ausente nos graus graves; introduza o uso de um diario/cálculo simples para controle de calorias.",
+                "Sugira aplicativos ou planilhas rápidas que somem calorias de forma prática."
+            ]
+        })
+
+    faf = user_data.get('FAF', 0)
+    if faf == 0 and severity >= 4:
+        insights.append({
+            "title": "Atividade fisica",
+            "lines": [
+                "O paciente apresenta sedentarismo total com obesidade avançada: iniciar plano supervisionado e progressivo para evitar lesão.",
+                "Combine fortalecimento leve + caminhada curta e aumente gradualmente."
+            ]
+        })
+    elif faf <= 1 and severity >= 2:
+        insights.append({
+            "title": "Atividade fisica",
+            "lines": [
+                "Baixa atividade: alinhar dieta estruturada e progressão de exercicios para conter ganho.",
+                "Metas semanais curtas (ex.: 2-3 sessões leves) ajudam na adesão."
+            ]
+        })
+
+    if age is not None and age <= 30 and severity >= 3:
+        insights.append({
+            "title": "Adulto jovem",
+            "lines": [
+                "Obesidade severa em faixa jovem pede abordagem precoce e intensiva.",
+                "Reforce orientações sobre fertilidade, metabolismo e longo prazo."
+            ]
+        })
+
+    if gender == 'Male' and pred_label == 'Obesity_Type_II':
+        insights.append({
+            "title": "Perfil masculino",
+            "lines": [
+                "Homens tendem a aparecer em Grau II; avalie rotina laboral, sono e ingestão proteica.",
+                "Cheque circunferência abdominal e risco cardiometabolico."
+            ]
+        })
+    if gender == 'Female' and pred_label == 'Obesity_Type_III':
+        insights.append({
+            "title": "Perfil feminino",
+            "lines": [
+                "Mulheres em Grau III se beneficiam de acompanhamento multidisciplinar intensivo.",
+                "Inclua suporte psicologico e manejo de deficiências micronutricionais."
+            ]
+        })
+
+    if user_data.get('FCVC') == 3 and severity >= 4:
+        insights.append({
+            "title": "Consumo de vegetais",
+            "lines": [
+                "Mesmo relatando vegetais sempre, o balanco calórico pode estar positivo.",
+                "Revise molhos, porções e acompanhamentos calóricos."
+            ]
+        })
+
+    if user_data.get('CH2O') == 3 and severity >= 4:
+        insights.append({
+            "title": "Liquidos",
+            "lines": [
+                "Alto consumo de líquidos pode incluir bebidas calóricas; diferencie água de sucos/refrigerantes.",
+                "Estimule água pura e reduza bebidas adoçadas."
+            ]
+        })
+
+    calc = user_data.get('CALC')
+    if calc in ['Sometimes', 'Frequently', 'Always'] and severity >= 3:
+        insights.append({
+            "title": "Alcool",
+            "lines": [
+                "Mesmo ocasional, alcool soma calorias vazias e piora controle de apetite.",
+                "Negocie redução ou pausas semanais, especialmente em graus elevados."
+            ]
+        })
+
+    if user_data.get('SMOKE') == 'yes':
+        insights.append({
+            "title": "Tabagismo",
+            "lines": [
+                "Apesar de raro, obesidade + tabagismo aumenta risco cardiometabolico.",
+                "Ofereça apoio para cessação e ajuste de peso no processo."
+            ]
+        })
+
+    return insights
 
 @st.cache_resource
 def get_model():
@@ -264,6 +392,16 @@ if botao_diagnostico:
     
     # RENDERIZAÇÃO FINAL
     st.markdown(html_bars, unsafe_allow_html=True)
+
+    st.subheader("Alertas clínicos orientados por dados")
+    clinical_insights = build_clinical_insights(user_data, pred_label)
+    if clinical_insights:
+        for item in clinical_insights:
+            st.markdown(f"### **{item['title']}**")
+            for line in item["lines"]:
+                st.markdown(f"- {line}")
+    else:
+        st.markdown("- Perfil sem alertas adicionais relevantes com base na análise exploratória.")
 
 else:
     st.info("👈 Utilize o menu lateral para inserir os dados do paciente.")
