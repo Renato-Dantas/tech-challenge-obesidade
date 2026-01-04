@@ -25,7 +25,8 @@ st.markdown("""
     .stButton button:hover {
         background-color: rgb(61, 157, 243);
     }
-            
+
+    .st-emotion-cache-lpgk4i,   
     .st-emotion-cache-lpgk4i:hover{
         color: white!important;
     }       
