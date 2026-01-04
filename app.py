@@ -101,6 +101,8 @@ st.markdown("""
         text-decoration: underline;
         color: rgb(61, 157, 243);
     }
+    /* Oculta navegação padrão de páginas no sidebar */
+    [data-testid="stSidebarNav"] { display: none !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -329,8 +331,16 @@ user_data = {
 }
 
 # --- ÁREA PRINCIPAL ---
-st.title("🩺 Sistema de Apoio Médico: Obesidade")
-st.markdown("Preencha os dados no menu lateral e clique em **Realizar Diagnóstico**.")
+header_cols = st.columns([4, 1])
+with header_cols[0]:
+    st.title("🩺 Sistema de Apoio Médico: Obesidade")
+    st.markdown("Preencha os dados no menu lateral e clique em **Realizar Diagnóstico**.")
+with header_cols[1]:
+    if st.button("📈 Análise Exploratória"):
+        try:
+            st.switch_page("pages/analise_exploratoria.py")
+        except Exception:
+            st.info("Abra a página 'Análise Exploratória' no menu lateral (modo multipágina).")
 
 if botao_diagnostico:
     

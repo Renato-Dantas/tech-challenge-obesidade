@@ -23,3 +23,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 4) Abra o link exibido no terminal (geralmente http://localhost:8501) e preencha os dados do paciente na barra lateral.
+
+## Páginas
+- `app.py`: sistema de diagnóstico (entrada dos dados do paciente, predição, barras de probabilidade e alertas clínicos).
+- `pages/analise_exploratoria.py`: reprodução dos gráficos e textos do notebook de análise exploratória, sem a etapa de ETL exposta, com botão para voltar ao diagnóstico.
